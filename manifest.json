@@ -1,0 +1,10 @@
+{
+  "name": "Communication interne - Gestion des visiteurs",
+  "short_name": "Visiteurs",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fb",
+  "theme_color": "#2457d6",
+  "description": "Gestion des visiteurs et demandes internes."
+}
