@@ -100,6 +100,7 @@ async function refreshIfNewDay(){
   .on("postgres_changes",{event:"*",schema:"public",table:"visit_recipients",filter:"member_id=eq."+ctx.session.user.id},load).subscribe();
  }catch(err){toast(err.message||"Erreur de chargement.","error");}})();
 window.addEventListener("focus",()=>refreshIfNewDay().catch(()=>{}));
+setInterval(()=>refreshIfNewDay().catch(()=>{}),60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshIfNewDay().catch(()=>{});});
 window.addEventListener("beforeunload",()=>{if(channel)db.removeChannel(channel);});
 })();
