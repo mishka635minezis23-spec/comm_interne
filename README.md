@@ -81,4 +81,4 @@ Configurer `WebViewer1.HomeUrl` vers l’URL HTTPS de `index.html`, `FollowLinks
 
 ## État
 
-Socle initial : connexion, création et suivi des visites, réponses, disponibilité, historique et administration simple. Les notifications push, le téléversement de photos vers un bucket privé, l’automatisation des relances et les tests de bout en bout restent à terminer avant usage en production.
+Socle actuel : connexion, création et suivi des visites, réponses, disponibilité, historique, administration des étages, conversations internes avec état de lecture, capture photo des visiteurs dans un bucket privé et visionneuse photo plein écran. L’intégration Capacitor/FCM, la génération APK/AAB par GitHub Actions, l’automatisation des notifications en arrière-plan et les tests complets sur appareils restent les prochaines étapes.
