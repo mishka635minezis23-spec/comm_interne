@@ -1,0 +1,13 @@
+{
+  "appId": "org.ujadiongd.accueil",
+  "appName": "UJADI Accueil",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["alert", "sound", "banner", "list"]
+    }
+  }
+}
