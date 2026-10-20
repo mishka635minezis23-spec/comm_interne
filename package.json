@@ -1,0 +1,15 @@
+{
+  "name": "comm-interne",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gestion interne des visiteurs — HTML, JavaScript, Supabase et MIT App Inventor WebViewer",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1"
+  }
+}
