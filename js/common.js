@@ -24,5 +24,64 @@ window.hydrateVisitPhotos=async root=>{
   img.addEventListener("error",()=>{img.hidden=true;},{once:true});
  }
 };
+
+function ensurePhotoViewer(){
+ let viewer=$("#visit-photo-viewer");
+ if(viewer)return viewer;
+ viewer=document.createElement("div");
+ viewer.id="visit-photo-viewer";
+ viewer.className="photo-viewer hidden";
+ viewer.setAttribute("role","dialog");
+ viewer.setAttribute("aria-modal","true");
+ viewer.setAttribute("aria-label","Agrandissement de la photo du visiteur");
+ viewer.innerHTML='<button type="button" class="photo-viewer-close" aria-label="Fermer la photo">×</button><div class="photo-viewer-content"><img class="photo-viewer-image" alt=""><p class="photo-viewer-caption"></p></div>';
+ document.body.appendChild(viewer);
+ return viewer;
+}
+let photoViewerReturnFocus=null;
+async function openPhotoViewer(thumbnail){
+ const viewer=ensurePhotoViewer(),image=$(".photo-viewer-image",viewer),caption=$(".photo-viewer-caption",viewer),close=$(".photo-viewer-close",viewer);
+ photoViewerReturnFocus=thumbnail;
+ image.removeAttribute("src");
+ image.alt=thumbnail.alt||"Photo du visiteur";
+ caption.textContent=thumbnail.alt||"Photo du visiteur";
+ viewer.classList.remove("hidden");
+ document.body.classList.add("modal-open");
+ close.focus();
+ const path=thumbnail.dataset.photoPath;
+ const {data,error}=await db.storage.from("visitor-photos").createSignedUrl(path,3600);
+ if(error||!data?.signedUrl){
+  toast("La photo ne peut pas être affichée pour le moment.","error");
+  closePhotoViewer();
+  return;
+ }
+ image.src=data.signedUrl;
+}
+function closePhotoViewer(){
+ const viewer=$("#visit-photo-viewer");
+ if(!viewer)return;
+ viewer.classList.add("hidden");
+ document.body.classList.remove("modal-open");
+ const image=$(".photo-viewer-image",viewer);
+ image.removeAttribute("src");
+ if(photoViewerReturnFocus?.isConnected)photoViewerReturnFocus.focus();
+ photoViewerReturnFocus=null;
+}
+document.addEventListener("click",event=>{
+ const thumbnail=event.target.closest("img[data-photo-path]");
+ if(thumbnail&&!thumbnail.hidden){
+  event.preventDefault();
+  openPhotoViewer(thumbnail);
+  return;
+ }
+ const viewer=$("#visit-photo-viewer");
+ if(viewer&&!viewer.classList.contains("hidden")){
+  if(event.target===viewer||event.target.closest(".photo-viewer-close"))closePhotoViewer();
+ }
+});
+document.addEventListener("keydown",event=>{
+ const viewer=$("#visit-photo-viewer");
+ if(event.key==="Escape"&&viewer&&!viewer.classList.contains("hidden"))closePhotoViewer();
+});
 window.isOnline=()=>{const el=$("#connection-status");if(el){el.textContent=navigator.onLine?"En ligne":"Hors ligne";el.classList.toggle("offline",!navigator.onLine);}};window.addEventListener("online",isOnline);window.addEventListener("offline",isOnline);document.addEventListener("DOMContentLoaded",isOnline);
 })();
