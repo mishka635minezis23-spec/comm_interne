@@ -20,7 +20,7 @@ window.hydrateVisitPhotos=async root=>{
   img.dataset.photoLoaded="1";
   const {data,error}=await db.storage.from("visitor-photos").createSignedUrl(img.dataset.photoPath,3600);
   if(error||!data?.signedUrl){img.hidden=true;continue;}
-  img.src=data.signedUrl;img.hidden=false;
+  img.src=data.signedUrl;img.hidden=false;img.tabIndex=0;img.setAttribute("role","button");img.setAttribute("aria-haspopup","dialog");img.setAttribute("aria-label","Agrandir la photo du visiteur");
   img.addEventListener("error",()=>{img.hidden=true;},{once:true});
  }
 };
@@ -80,6 +80,8 @@ document.addEventListener("click",event=>{
  }
 });
 document.addEventListener("keydown",event=>{
+ const thumbnail=event.target.closest?.("img[data-photo-path]");
+ if(thumbnail&&(event.key==="Enter"||event.key===" ")){event.preventDefault();openPhotoViewer(thumbnail);return;}
  const viewer=$("#visit-photo-viewer");
  if(event.key==="Escape"&&viewer&&!viewer.classList.contains("hidden"))closePhotoViewer();
 });
