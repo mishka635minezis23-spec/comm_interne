@@ -1,40 +1,18 @@
 <!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#2457d6">
-  <title>Connexion · Communication interne</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/mitappinventor-bridge.js"></script>
-  <script defer src="js/login.js"></script>
-</head>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0B4FD8"><title>Connexion · UJADI ONGD</title><link rel="stylesheet" href="css/style.css"><link rel="manifest" href="manifest.json"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="js/supabase.js"></script><script src="js/common.js"></script><script src="js/mitappinventor-bridge.js"></script><script defer src="js/login.js"></script></head>
 <body class="login-page">
-  <main class="login-layout">
-    <section class="login-info">
-      <div><div class="brand"><span class="brand-mark">CI</span><span>Communication interne</span></div>
-      <h1>Les visiteurs.<br>Les bonnes personnes.<br>Au bon moment.</h1>
-      <p>Une réception simple, des réponses rapides et un suivi clair de chaque visite.</p></div>
-      <div class="login-info-foot">Plateforme interne sécurisée · Accès réservé au personnel autorisé</div>
-    </section>
-    <section class="login-form">
-      <span class="eyebrow">Espace professionnel</span><h2>Bon retour</h2>
-      <p>Connecte-toi avec les identifiants fournis par l’administration.</p>
-      <form id="login-form">
-        <div class="field"><label for="email">Adresse e-mail</label><input id="email" name="email" type="email" autocomplete="username" placeholder="nom@entreprise.cd" required></div>
-        <div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ton mot de passe" required></div>
-        <button class="btn" type="submit">Se connecter <span aria-hidden="true">→</span></button>
-      </form>
-      <div class="divider"></div>
-      <div class="notice">Les comptes sont créés par l’administration dans Supabase Auth. L’inscription publique est désactivée.</div>
-      <p class="footer-note">Les informations des visiteurs sont réservées au personnel autorisé.</p>
-    </section>
-  </main>
-  <script>if('serviceWorker' in navigator && location.protocol.startsWith('http') && !['localhost','127.0.0.1'].includes(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
-</body>
-</html>
+ <main class="login-layout">
+  <section class="login-info">
+   <div><a class="brand" href="https://ujadiongd.org/" aria-label="UJADI ONGD - site officiel"><span class="brand-mark">UJ</span><span class="brand-copy"><strong>UJADI <span>ONGD</span></strong><small>Agir ensemble pour un avenir meilleur</small></span></a>
+   <div class="eyebrow" style="color:#dbe7ff;margin-top:36px">Goma · Nord-Kivu · RDC</div>
+   <h1>Un accueil humain.<br>Une coordination claire.</h1><p>La plateforme interne d’accueil des visiteurs et de coordination des audiences du personnel UJADI ONGD.</p></div>
+   <div class="login-info-foot">Union des Jeunes Actifs pour le Développement Intégral<br>Accès réservé au personnel autorisé.</div>
+  </section>
+  <section class="login-form"><span class="eyebrow">Espace professionnel</span><h2>Bon retour</h2><p>Connecte-toi avec les identifiants fournis par l’administration.</p>
+   <form id="login-form"><div class="field"><label for="email">Adresse e-mail</label><input id="email" name="email" type="email" autocomplete="username" placeholder="nom@ujadiongd.org" required></div><div class="field"><label for="password">Mot de passe</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ton mot de passe" required></div><button class="btn" type="submit">Se connecter <span aria-hidden="true">→</span></button></form>
+   <div class="divider"></div><div class="notice">La connexion est conservée sur cet appareil pour éviter de saisir tes identifiants à chaque ouverture, sauf déconnexion ou effacement des données du navigateur.</div>
+   <p class="footer-note">Les informations des visiteurs sont réservées aux collaborateurs autorisés.</p>
+  </section>
+ </main>
+ <script>if('serviceWorker' in navigator && location.protocol.startsWith('http') && !['localhost','127.0.0.1'].includes(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body></html>
