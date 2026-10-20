@@ -104,21 +104,21 @@ async function startForUser(userId) {
   }
 }
 
-function addListeners() {
+async function addListeners() {
   if (listenersReady) return;
   listenersReady = true;
 
-  PushNotifications.addListener("registration", saveDeviceToken);
-  PushNotifications.addListener("registrationError", error => {
+  await PushNotifications.addListener("registration", saveDeviceToken);
+  await PushNotifications.addListener("registrationError", error => {
     console.warn("Échec d'enregistrement FCM :", error);
   });
-  PushNotifications.addListener("pushNotificationReceived", notification => {
+  await PushNotifications.addListener("pushNotificationReceived", notification => {
     const data = notification?.data || {};
     if (data.event === "visit_alert_start" && window.toast) {
       toast("Nouvelle demande d'audience reçue.", "info");
     }
   });
-  PushNotifications.addListener("pushNotificationActionPerformed", action => {
+  await PushNotifications.addListener("pushNotificationActionPerformed", action => {
     const data = action?.notification?.data || {};
     const visitId = data.visit_id || data.ujadi_visit_id;
     const alertAction = data.alert_action || "open";
@@ -139,18 +139,19 @@ async function deactivate() {
 }
 
 if (isAndroidApp() && window.db) {
-  addListeners();
-  db.auth.onAuthStateChange((event, session) => {
-    if (session?.user?.id) {
-      queueMicrotask(() => void startForUser(session.user.id));
-    } else {
-      activeUserId = null;
-      activeToken = null;
-    }
-  });
-  db.auth.getSession().then(({ data }) => {
-    if (data?.session?.user?.id) void startForUser(data.session.user.id);
-  }).catch(error => console.warn("Session Android indisponible :", error));
+  void (async () => {
+    await addListeners();
+    db.auth.onAuthStateChange((event, session) => {
+      if (session?.user?.id) {
+        queueMicrotask(() => void startForUser(session.user.id));
+      } else {
+        activeUserId = null;
+        activeToken = null;
+      }
+    });
+    const { data } = await db.auth.getSession();
+    if (data?.session?.user?.id) await startForUser(data.session.user.id);
+  })().catch(error => console.warn("Initialisation Android indisponible :", error));
 }
 
 window.UJADINativeNotifications = {
