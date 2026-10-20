@@ -98,7 +98,7 @@ form.addEventListener("submit",async e=>{
  if(!primary){toast("Choisis un collaborateur à contacter.","error");return;}
  setButtonBusy(btn,true,"Envoi…");
  try{
-  const {error}=await db.rpc("create_visit",{p_visit_id:(crypto.randomUUID?crypto.randomUUID():undefined),p_visitor_name:form.elements.visitor_name.value.trim(),p_visitor_organization:form.elements.visitor_organization.value.trim()||null,p_photo_path:null,p_reason_id:form.elements.reason_id.value||null,p_note:form.elements.note.value.trim()||null,p_member_ids:ids,p_urgency:form.elements.urgency.value});
+  const {error}=await db.rpc("create_visit",{p_visit_id:null,p_visitor_name:form.elements.visitor_name.value.trim(),p_visitor_organization:form.elements.visitor_organization.value.trim()||null,p_photo_path:null,p_reason_id:form.elements.reason_id.value||null,p_note:form.elements.note.value.trim()||null,p_member_ids:ids,p_urgency:form.elements.urgency.value});
   if(error)throw error;toast("Demande d’audience enregistrée et transmise.","success");form.reset();$("#extra-target-members").classList.add("hidden");closeVisitForm();await loadVisits();
  }catch(err){toast(err.message||"La demande n’a pas pu être créée.","error");}
  finally{setButtonBusy(btn,false);}
