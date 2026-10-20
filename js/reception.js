@@ -1,5 +1,7 @@
 (function(){"use strict";
 let ctx=null,members=[],channel=null,firstVisitLoad=true,previousResponses=new Map(),announcementQueue=[],announcementOpen=false,suppressedAnnouncements=new Map();
+let visitPage=1,capturedVisitorPhoto=null,photoPreviewUrl=null;
+const pageSize=5;
 const form=$("#visit-form"),list=$("#active-visits"),visitModal=$("#visit-dialog"),noticeModal=$("#response-announcement");
 const responseOptions=[["authorized","Autoriser l’entrée"],["waiting","Faire patienter"],["unavailable","Indisponible"]];
 function setModal(modal,open){modal.classList.toggle("hidden",!open);modal.setAttribute("aria-hidden",open?"false":"true");}
@@ -21,7 +23,8 @@ async function loadPeople(){
 }
 async function loadReasons(){
  const {data,error}=await db.from("visit_reasons").select("id,label").eq("is_active",true).order("sort_order");
- if(error)throw error;$("#visit-reason").innerHTML='<option value="">Choisir un motif…</option>'+(data||[]).map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.label)+'</option>').join("");
+ if(error)throw error;
+ $("#visit-reason").innerHTML='<option value="">Choisir un motif…</option>'+(data||[]).map(r=>'<option value="'+escapeHTML(r.id)+'">'+escapeHTML(r.label)+'</option>').join("");
 }
 function createAnnouncement(v){announcementQueue.push(v);if(!announcementOpen)showNextAnnouncement();}
 function showNextAnnouncement(){
@@ -38,7 +41,8 @@ function renderCard(v){
  const canChangeResponse=!disabled&&v.presence_status==="not_arrived";
  const responseControls=!canChangeResponse?"":'<div class="visit-controls"><select aria-label="Modifier la réponse de la visite" data-state-select="'+escapeHTML(v.id)+'"><option value="">Modifier la décision…</option>'+responseOptions.map(([value,label])=>'<option value="'+value+'" '+(v.response_status===value?"selected":"")+'>'+label+'</option>').join("")+'</select><button type="button" class="btn secondary small-btn" data-save-state="'+escapeHTML(v.id)+'">Appliquer</button></div>';
  const minutes=!canChangeResponse?"":'<div class="field section-gap"><label for="wait-'+escapeHTML(v.id)+'">Délai si le visiteur doit patienter</label><select id="wait-'+escapeHTML(v.id)+'" data-wait-minutes="'+escapeHTML(v.id)+'"><option value="5">5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">1 heure</option><option value="120">2 heures</option></select></div>';
- let html='<article class="visit-card" data-visit="'+escapeHTML(v.id)+'"><div class="visit-top"><div><h3>'+escapeHTML(v.visitor_name)+'</h3><div class="muted small">'+escapeHTML(v.visitor_organization||"Visiteur")+' · '+formatDate(v.created_at)+'</div></div><div class="stack">'+badge(v.response_status,responseLabel(v.response_status))+' '+badge(v.presence_status,presenceLabel(v.presence_status))+'</div></div>';
+ const photo=v.visitor_photo_path?'<img class="visit-photo" data-photo-path="'+escapeHTML(v.visitor_photo_path)+'" alt="Photo de '+escapeHTML(v.visitor_name)+'" hidden>':"";
+ let html='<article class="visit-card" data-visit="'+escapeHTML(v.id)+'"><div class="visit-top"><div class="visit-photo-wrap">'+photo+'<div><h3>'+escapeHTML(v.visitor_name)+'</h3><div class="muted small">'+escapeHTML(v.visitor_organization||"Visiteur")+' · '+formatDate(v.created_at)+'</div></div></div><div class="stack">'+badge(v.response_status,responseLabel(v.response_status))+' '+badge(v.presence_status,presenceLabel(v.presence_status))+'</div></div>';
  if(v.note)html+='<p class="visit-note">'+escapeHTML(v.note)+'</p>';
  html+='<div class="visit-meta">'+badge(v.urgency,v.urgency==="urgent"?"Priorité urgente":"Priorité normale")+(v.responding_member_id?badge("available","Réponse reçue"):"")+'</div>';
  if(v.response_status==="waiting"&&v.waiting_until)html+='<p class="notice warning section-gap">Le visiteur patiente jusqu’à '+escapeHTML(formatDate(v.waiting_until))+'.</p>';
@@ -47,11 +51,59 @@ function renderCard(v){
  if(v.response_status==="authorized"&&v.presence_status==="not_arrived")html+='<button class="btn success small-btn" data-presence="in_visit" data-id="'+escapeHTML(v.id)+'">✓ Confirmer l’entrée</button>';
  if(v.response_status==="authorized"&&v.presence_status==="in_visit")html+='<button class="btn secondary small-btn" data-presence="completed" data-id="'+escapeHTML(v.id)+'">Terminer la visite</button>';
  if(!disabled&&["pending","viewed","authorized","waiting","unavailable","no_response"].includes(v.response_status))html+='<button class="btn danger small-btn" data-cancel="'+escapeHTML(v.id)+'">Annuler</button>';
- if(!disabled)html+='<button class="btn secondary small-btn" type="button" data-open-chat="'+escapeHTML(v.id)+'" data-chat-title="'+escapeHTML(v.visitor_name)+'">▤ Chat interne</button>';
+ if(!disabled)html+='<button class="btn secondary small-btn chat-action" type="button" data-open-chat="'+escapeHTML(v.id)+'" data-chat-title="'+escapeHTML(v.visitor_name)+'">▤ Chat interne<span class="chat-unread-dot hidden" data-chat-unread="'+escapeHTML(v.id)+'"></span></button>';
  html+='</div></article>';return html;
 }
+function renderPagination(rows){
+ const nav=$("#active-visits-pagination");if(!nav)return;
+ const pages=Math.max(1,Math.ceil(rows.length/pageSize));
+ visitPage=Math.min(Math.max(1,visitPage),pages);
+ if(pages<=1){nav.innerHTML=rows.length?'<span class="pagination-info">5 visites maximum par page · '+rows.length+' affichée(s)</span>':"";return;}
+ const start=Math.max(1,Math.min(pages-4,visitPage-2)),end=Math.min(pages,start+4);
+ nav.innerHTML='<button type="button" class="pagination-btn" data-visit-page="'+(visitPage-1)+'" '+(visitPage===1?"disabled":"")+' aria-label="Page précédente">‹</button>'
+ +Array.from({length:end-start+1},(_,i)=>start+i).map(n=>'<button type="button" class="pagination-btn '+(n===visitPage?"current":"")+'" data-visit-page="'+n+'" aria-label="Page '+n+'" '+(n===visitPage?'aria-current="page"':"")+'>'+n+'</button>').join("")
+ +'<span class="pagination-info">Page '+visitPage+' / '+pages+' · '+rows.length+' visites</span>'
+ +'<button type="button" class="pagination-btn" data-visit-page="'+(visitPage+1)+'" '+(visitPage===pages?"disabled":"")+' aria-label="Page suivante">›</button>';
+}
+function renderVisitPage(rows){
+ const pages=Math.max(1,Math.ceil(rows.length/pageSize));visitPage=Math.min(visitPage,pages);
+ const visible=rows.slice((visitPage-1)*pageSize,visitPage*pageSize);
+ list.innerHTML=visible.length?visible.map(renderCard).join(""):'<div class="empty"><strong>Aucune visite pour le moment</strong>Les demandes d’audience apparaîtront ici, avec leur réponse et leur état.</div>';
+ renderPagination(rows);
+ if(window.hydrateVisitPhotos)window.hydrateVisitPhotos(list);
+ if(window.VisitChat)VisitChat.refreshUnreadBadges();
+}
+function makeUuid(){
+ if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+ if(window.crypto&&crypto.getRandomValues){
+  const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);
+  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+  return Array.from(bytes,(b,i)=>[4,6,8,10].includes(i)?"-"+b.toString(16).padStart(2,"0"):b.toString(16).padStart(2,"0")).join("");
+ }
+ throw new Error("Ce navigateur ne permet pas de générer un identifiant sécurisé. Mets le WebView à jour.");
+}
+function compressVisitorPhoto(file){
+ return new Promise((resolve,reject)=>{
+  const url=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{
+   const max=1280,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+   const canvas=document.createElement("canvas");canvas.width=Math.round(img.naturalWidth*scale);canvas.height=Math.round(img.naturalHeight*scale);
+   const context=canvas.getContext("2d");
+   if(!context){URL.revokeObjectURL(url);reject(new Error("Compression photo indisponible."));return;}
+   context.drawImage(img,0,0,canvas.width,canvas.height);
+   canvas.toBlob(blob=>{URL.revokeObjectURL(url);if(blob)resolve(blob);else reject(new Error("Impossible de préparer la photo."));},"image/jpeg",.78);
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("Format photo non pris en charge par ce téléphone."));};
+  img.src=url;
+ });
+}
+function clearVisitorPhoto(){
+ capturedVisitorPhoto=null;const input=$("#visitor-photo");if(input)input.value="";
+ if(photoPreviewUrl){URL.revokeObjectURL(photoPreviewUrl);photoPreviewUrl=null;}
+ $("#visitor-photo-preview")?.classList.add("hidden");
+}
 async function loadVisits(notifyChanges=false){
- const {data,error}=await db.from("visits").select("id,visitor_name,visitor_organization,note,created_at,response_status,presence_status,urgency,responding_member_id,response_message,response_at,waiting_until").order("created_at",{ascending:false}).limit(30);
+ const {data,error}=await db.from("visits").select("id,visitor_name,visitor_organization,visitor_photo_path,note,created_at,response_status,presence_status,urgency,responding_member_id,response_message,response_at,waiting_until").order("created_at",{ascending:false}).limit(250);
  if(error)throw error;const rows=data||[];
  if(notifyChanges&&!firstVisitLoad){
   rows.forEach(v=>{
@@ -65,7 +117,7 @@ async function loadVisits(notifyChanges=false){
  previousResponses=new Map(rows.map(v=>[v.id,v.response_status]));firstVisitLoad=false;
  $("#stat-active").textContent=rows.filter(v=>v.presence_status!=="completed"&&v.response_status!=="cancelled").length;
  $("#stat-pending").textContent=rows.filter(v=>["pending","viewed","no_response"].includes(v.response_status)).length;
- list.innerHTML=rows.length?rows.map(renderCard).join(""):'<div class="empty"><strong>Aucune visite pour le moment</strong>Les demandes d’audience apparaîtront ici, avec leur réponse et leur état.</div>';
+ renderVisitPage(rows);
 }
 function openVisitForm(){setModal(visitModal,true);setTimeout(()=>$("#visitor-name").focus(),50);}
 function closeVisitForm(){setModal(visitModal,false);}
@@ -73,6 +125,8 @@ document.addEventListener("click",async e=>{
  if(e.target.closest("[data-open-visit]")){openVisitForm();return;}
  if(e.target.closest("[data-close-visit]")){closeVisitForm();return;}
  if(e.target.closest("[data-refresh]")){loadVisits().catch(err=>toast(err.message||"Actualisation impossible.","error"));return;}
+ const pageButton=e.target.closest("[data-visit-page]");
+ if(pageButton){visitPage=parseInt(pageButton.dataset.visitPage,10)||1;loadVisits().catch(err=>toast(err.message||"Pagination impossible.","error"));return;}
  if(e.target===visitModal){closeVisitForm();return;}
  if(e.target.closest("#acknowledge-response")){announcementQueue.shift();showNextAnnouncement();return;}
  const p=e.target.closest("[data-presence]"),c=e.target.closest("[data-cancel]"),save=e.target.closest("[data-save-state]");
@@ -92,6 +146,17 @@ document.addEventListener("click",async e=>{
  }catch(err){toast(err.message||"Action impossible.","error");}
  finally{if(save)setButtonBusy(save,false);}
 });
+$("#visitor-photo")?.addEventListener("change",e=>{
+ const file=e.target.files&&e.target.files[0];if(!file){clearVisitorPhoto();return;}
+ if(!file.type.startsWith("image/")){toast("Choisis un fichier image.","error");clearVisitorPhoto();return;}
+ if(file.size>12*1024*1024){toast("La photo doit faire moins de 12 Mo avant compression.","error");clearVisitorPhoto();return;}
+ capturedVisitorPhoto=file;
+ if(photoPreviewUrl)URL.revokeObjectURL(photoPreviewUrl);
+ photoPreviewUrl=URL.createObjectURL(file);
+ $("#visitor-photo-preview-image").src=photoPreviewUrl;
+ $("#visitor-photo-preview").classList.remove("hidden");
+});
+$("#remove-visitor-photo")?.addEventListener("click",clearVisitorPhoto);
 form.addEventListener("submit",async e=>{
  e.preventDefault();const btn=form.querySelector('[type="submit"]');
  const primary=$("#target-member").value,extras=$$('input[name="extra_member_ids"]:checked',form).map(el=>el.value);
@@ -99,8 +164,21 @@ form.addEventListener("submit",async e=>{
  if(!primary){toast("Choisis un collaborateur à contacter.","error");return;}
  setButtonBusy(btn,true,"Envoi…");
  try{
-  const {error}=await db.rpc("create_visit",{p_visit_id:null,p_visitor_name:form.elements.visitor_name.value.trim(),p_visitor_organization:form.elements.visitor_organization.value.trim()||null,p_photo_path:null,p_reason_id:form.elements.reason_id.value||null,p_note:form.elements.note.value.trim()||null,p_member_ids:ids,p_urgency:form.elements.urgency.value});
-  if(error)throw error;toast("Demande d’audience enregistrée et transmise.","success");form.reset();$("#extra-target-members").classList.add("hidden");closeVisitForm();await loadVisits();
+  const visitId=makeUuid();
+  const {data:createdId,error}=await db.rpc("create_visit",{p_visit_id:visitId,p_visitor_name:form.elements.visitor_name.value.trim(),p_visitor_organization:form.elements.visitor_organization.value.trim()||null,p_photo_path:null,p_reason_id:form.elements.reason_id.value||null,p_note:form.elements.note.value.trim()||null,p_member_ids:ids,p_urgency:form.elements.urgency.value});
+  if(error)throw error;
+  const savedVisitId=createdId||visitId;
+  if(capturedVisitorPhoto){
+   try{
+    const blob=await compressVisitorPhoto(capturedVisitorPhoto);
+    const photoPath=savedVisitId+"/visitor.jpg";
+    const {error:uploadError}=await db.storage.from("visitor-photos").upload(photoPath,blob,{contentType:"image/jpeg",cacheControl:"3600",upsert:true});
+    if(uploadError)throw uploadError;
+    const {error:pathError}=await db.rpc("set_visit_photo_path",{p_visit_id:savedVisitId,p_photo_path:photoPath});
+    if(pathError){await db.storage.from("visitor-photos").remove([photoPath]);throw pathError;}
+   }catch(photoError){toast("Demande enregistrée, mais la photo n’a pas pu être jointe : "+(photoError.message||"erreur photo"),"error");}
+  }
+  toast("Demande d’audience enregistrée et transmise.","success");form.reset();clearVisitorPhoto();$("#extra-target-members").classList.add("hidden");closeVisitForm();visitPage=1;await loadVisits();
  }catch(err){toast(err.message||"La demande n’a pas pu être créée.","error");}
  finally{setButtonBusy(btn,false);}
 });
