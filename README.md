@@ -1,6 +1,6 @@
 # Communication interne — gestion des visiteurs
 
-Application de gestion des visiteurs pour un bureau, pensée pour MIT App Inventor WebViewer côté Android et PWA côté réception iPhone.
+Application de gestion des visiteurs pour UJADI ONGD. Android utilise Capacitor avec alertes FCM natives ; l'iPhone conserve la PWA.
 
 ## Lancer en local avec Vite
 
@@ -48,9 +48,9 @@ Toutes les pages sont directement à la racine du dépôt pour assurer une navig
 - HTML, CSS, JavaScript
 - Vite pour le serveur de développement et la compilation multipage
 - Supabase Auth, PostgreSQL et Realtime
-- MIT App Inventor WebViewer pour l’APK Android
+- Capacitor 8 et Android natif pour l'application Android
 - PWA pour la réception sur iPhone
-- FCM/Web Push pour les notifications système (intégration restante)
+- Firebase Cloud Messaging pour les alertes Android
 
 ## Supabase
 
@@ -81,4 +81,4 @@ Configurer `WebViewer1.HomeUrl` vers l’URL HTTPS de `index.html`, `FollowLinks
 
 ## État
 
-Socle actuel : connexion, création et suivi des visites, réponses, disponibilité, historique, administration des étages, conversations internes avec état de lecture, capture photo des visiteurs dans un bucket privé et visionneuse photo plein écran. L’intégration Capacitor/FCM, la génération APK/AAB par GitHub Actions, l’automatisation des notifications en arrière-plan et les tests complets sur appareils restent les prochaines étapes.
+Socle actuel : connexion, création et suivi des visites, réponses, disponibilité, historique, administration des étages, conversations internes avec état de lecture, capture photo des visiteurs dans un bucket privé et visionneuse photo plein écran. Le socle Capacitor, le service Android d'alerte persistante et le workflow APK sont ajoutés. Voir `ANDROID-CAPACITOR.md` pour configurer Firebase, le secret Supabase et les tests sur appareils.
