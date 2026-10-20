@@ -1,55 +1,75 @@
 # Communication interne — gestion des visiteurs
 
-Application web de gestion des visiteurs pour un bureau.
+Application de gestion des visiteurs pour un bureau, pensée pour MIT App Inventor WebViewer côté Android et PWA côté réception iPhone.
 
-## Interfaces
+## Lancer en local avec Vite
 
-Toutes les pages HTML sont directement à la racine du dépôt, au même niveau que `index.html`, afin que MIT App Inventor WebViewer puisse naviguer par des liens relatifs simples.
+Prérequis : Node.js **22.12 ou plus récent** et npm.
+
+```bash
+git clone https://github.com/mishka635minezis23-spec/comm_interne.git
+cd comm_interne
+npm install
+npm run dev
+```
+
+Ouvre ensuite l’interface d’administration directement à :
+
+`http://localhost:5173/admin.html`
+
+Les autres pages sont accessibles sans sous-dossier :
+
+- `http://localhost:5173/index.html`
+- `http://localhost:5173/reception.html`
+- `http://localhost:5173/personnel.html`
+- `http://localhost:5173/disponibilite.html`
+- `http://localhost:5173/historique.html`
+
+Pour vérifier la compilation de toutes les pages :
+
+```bash
+npm run build
+npm run preview
+```
+
+## Pages à la racine
 
 - `index.html` — connexion
 - `reception.html` — accueil et suivi des visiteurs
-- `personnel.html` — alertes visibles et réponses des collaborateurs
+- `personnel.html` — demandes et réponses des collaborateurs
 - `disponibilite.html` — disponibilité personnelle
 - `historique.html` — registre des visites
-- `admin.html` — administration des profils, étages et motifs
+- `admin.html` — gestion des profils, étages et motifs
 
-## Technologies
+Toutes les pages sont directement à la racine du dépôt pour assurer une navigation simple dans MIT App Inventor WebViewer.
 
-- HTML, CSS et JavaScript
+## Stack
+
+- HTML, CSS, JavaScript
+- Vite pour le serveur de développement et la compilation multipage
 - Supabase Auth, PostgreSQL et Realtime
-- Supabase Storage (photos privées : configuration restante)
-- MIT App Inventor WebViewer pour l’application Android
+- MIT App Inventor WebViewer pour l’APK Android
 - PWA pour la réception sur iPhone
-- FCM/Web Push : intégration des notifications système restant à faire
+- FCM/Web Push pour les notifications système (intégration restante)
 
-## Configuration
+## Supabase
 
-1. Publier les fichiers sur un hébergement HTTPS.
-2. Vérifier l’URL et la clé publique dans `config.js`.
-3. Exécuter le schéma SQL du projet Supabase (voir `database.sql` quand présent ou le dossier des migrations).
-4. Créer les comptes utilisateurs dans Supabase Auth. Un profil est automatiquement créé avec le rôle `member`.
-5. Pour initialiser l’administrateur, récupérer l’UUID du compte dans Supabase Auth puis mettre à jour le rôle dans SQL Editor :
-   ```sql
-   update public.staff_members
-   set role = 'admin'
-   where id = 'UUID_DU_COMPTE';
-   ```
-6. Créer les comptes de réception dans Supabase Auth puis leur affecter le rôle `reception` depuis la page d’administration ou SQL Editor.
+L’application pointe vers le projet Supabase configuré dans `config.js`. La clé publishable est une clé client publique ; ne jamais exposer une clé `service_role` ou une clé secrète.
+
+Les comptes doivent exister dans Supabase Auth. Le déclencheur crée automatiquement leur profil avec le rôle `member`. Pour initialiser le premier administrateur, exécute dans le SQL Editor en remplaçant l’UUID :
+
+```sql
+update public.staff_members
+set role = 'admin'
+where id = 'UUID_DU_COMPTE';
+```
+
+Le profil administrateur doit être créé par l’authentification avant l’attribution du rôle. Pour des tests, utilise des comptes séparés pour l’administration, la réception et le personnel.
 
 ## MIT App Inventor WebViewer
 
-Configurer `WebViewer1.HomeUrl` vers l’URL HTTPS de `index.html`, `FollowLinks=true`, `UseExternalBrowser=false` et `IgnoreSslErrors=false`. La touche Retour Android doit gérer l’historique WebViewer dans les blocs App Inventor.
-
-Le fichier `js/mitappinventor-bridge.js` prévoit un pont JSON avec `WebViewerString` pour commander la caméra ou transmettre des événements aux blocs. Il ne fournit pas, à lui seul, les fonctions natives.
-
-## Sécurité
-
-- La clé `sb_publishable_...` est une clé publique de client, pas une clé secrète.
-- Ne jamais embarquer une clé `service_role`, une clé secrète Firebase ou un jeton administrateur dans les pages ou dans l’APK.
-- Les permissions RLS doivent rester actives.
-- Les notifications push et le stockage privé des photos ne sont pas encore terminés.
-- Le MVP doit être testé avec des comptes distincts admin, réception et personnel avant toute utilisation réelle.
+Configurer `WebViewer1.HomeUrl` vers l’URL HTTPS de `index.html`, `FollowLinks=true`, `UseExternalBrowser=false` et `IgnoreSslErrors=false`. Voir `MIT_APP_INVENTOR_SETUP.md` pour le pont JavaScript ↔ blocs.
 
 ## État
 
-Socle fonctionnel initial : authentification, création/suivi des visites, réponses, disponibilité, historique et administration simple. Les notifications hors application, l’envoi de photos vers un bucket privé, le traitement automatique des délais et les tests fonctionnels de bout en bout sont les prochaines étapes.
+Socle initial : connexion, création et suivi des visites, réponses, disponibilité, historique et administration simple. Les notifications push, le téléversement de photos vers un bucket privé, l’automatisation des relances et les tests de bout en bout restent à terminer avant usage en production.
