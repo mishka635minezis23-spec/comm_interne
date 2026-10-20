@@ -7,7 +7,7 @@ function ensureModal(){
  modal.innerHTML='<section class="chat-panel"><header class="chat-header"><div><div class="eyebrow">Conversation interne</div><h2 id="chat-title">Discussion de la visite</h2><p id="chat-description" class="small muted">Échange lié à cette demande d’audience.</p></div><button type="button" class="modal-close" data-chat-close aria-label="Fermer la conversation">×</button></header><div id="chat-messages" class="chat-messages"><div class="empty">Chargement des messages…</div></div><form id="chat-form" class="chat-form"><textarea id="chat-message-input" maxlength="2000" required rows="1" placeholder="Écrire un message…" aria-label="Message"></textarea><button class="btn" type="submit">Envoyer</button></form></section>';
  document.body.appendChild(modal);return modal;
 }
-function setOpen(open){const modal=ensureModal();modal.classList.toggle("hidden",!open);modal.setAttribute("aria-hidden",open?"false":"true");document.body.classList.toggle("modal-open",open);if(open)setTimeout(()=>$("#chat-message-input",modal)?.focus(),80);}
+function setOpen(open){const modal=ensureModal();modal.classList.toggle("hidden",!open);modal.setAttribute("aria-hidden",open?"false":"true");if(open)setTimeout(()=>$("#chat-message-input",modal)?.focus(),80);}
 async function loadMessages(){
  if(!currentVisitId||!ctx)return;
  const box=$("#chat-messages");box.innerHTML='<div class="empty">Chargement des messages…</div>';
