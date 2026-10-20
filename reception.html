@@ -36,7 +36,7 @@
     <article class="card stat"><div><div class="stat-number">Direct</div><div class="stat-label">Mise à jour en temps réel</div></div><span class="stat-icon" aria-hidden="true">↻</span></article>
   </section>
   <div class="home-section-title"><div><h2>Suivi des visites récentes</h2><p>Vérifie les réponses, ajuste la décision et échange avec le collaborateur.</p></div><a href="historique.html">Voir tout l’historique →</a></div>
-  <section class="card" aria-label="Visites récentes"><div id="active-visits" class="stack"><div class="empty">Chargement des visites…</div></div></section>
+  <section class="card" aria-label="Visites récentes"><div id="active-visits" class="stack"><div class="empty">Chargement des visites…</div></div><div id="active-visits-pagination" class="pagination" aria-label="Pagination des visites"></div></section>
   <footer class="footer-note">UJADI ONGD · Union des Jeunes Actifs pour le Développement Intégral · Accès réservé au personnel autorisé.</footer>
 </main>
 
@@ -55,6 +55,15 @@
       <div class="field"><label for="target-member">Collaborateur à contacter *</label><select id="target-member" name="primary_member_id" required><option value="">Chargement du personnel…</option></select><span class="hint">Choisis d’abord la personne principale. Tu peux ajouter d’autres destinataires si nécessaire.</span></div>
       <label class="check-item"><input id="add-extra-targets" type="checkbox"><span><strong>Ajouter d’autres collaborateurs</strong><br><span class="small">Pour une réunion ou une demande adressée à plusieurs personnes.</span></span></label>
       <div id="extra-target-members" class="checkbox-list hidden"></div>
+      <div class="field">
+        <label for="visitor-photo">Photo du visiteur (facultatif)</label>
+        <input class="photo-capture-input" type="file" id="visitor-photo" accept="image/*" capture="environment">
+        <span class="hint">Utilise l’appareil photo arrière du téléphone. La photo est conservée dans un espace privé.</span>
+        <div id="visitor-photo-preview" class="photo-preview-row hidden">
+          <img id="visitor-photo-preview-image" class="visit-photo-preview" alt="Aperçu de la photo du visiteur">
+          <div class="stack"><strong>Photo prête à être jointe</strong><span class="small muted">Image compressée avant envoi.</span><button type="button" class="btn secondary small-btn" id="remove-visitor-photo">Retirer la photo</button></div>
+        </div>
+      </div>
       <div class="field"><label for="visit-note">Commentaire à transmettre</label><textarea name="note" id="visit-note" maxlength="1000" placeholder="Ajoute une précision utile, sans informations confidentielles non nécessaires."></textarea></div>
       <div class="modal-actions"><button class="btn secondary" type="button" data-close-visit>Annuler</button><button type="submit" class="btn">Envoyer la demande →</button></div>
     </form>
