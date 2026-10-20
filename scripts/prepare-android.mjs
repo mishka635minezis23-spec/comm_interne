@@ -107,6 +107,7 @@ if (!mainActivity.includes("registerPlugin(UJADIAlertsPlugin.class)")) {
     '    protected void onNewIntent(Intent intent) {\n' +
     '        super.onNewIntent(intent);\n' +
     '        setIntent(intent);\n' +
+    '        UJADIAlertsPlugin.dispatchAction(intent);\n' +
     '    }\n'
   );
   writeFileSync(mainActivityPath, mainActivity, "utf8");
