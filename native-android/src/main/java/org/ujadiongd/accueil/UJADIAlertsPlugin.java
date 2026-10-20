@@ -10,6 +10,25 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 @CapacitorPlugin(name = "UJADIAlerts")
 public class UJADIAlertsPlugin extends Plugin {
+    private static UJADIAlertsPlugin activePlugin;
+
+    @Override
+    public void load() {
+        super.load();
+        activePlugin = this;
+    }
+
+    public static void dispatchAction(Intent intent) {
+        UJADIAlertsPlugin plugin = activePlugin;
+        if (plugin == null || intent == null) return;
+        String visitId = intent.getStringExtra("ujadi_visit_id");
+        String action = intent.getStringExtra("ujadi_alert_action");
+        if (visitId == null) return;
+        JSObject data = new JSObject();
+        data.put("visitId", visitId);
+        data.put("action", action == null ? "open" : action);
+        plugin.notifyListeners("alertAction", data);
+    }
     @PluginMethod
     public void stopAlert(PluginCall call) {
         String visitId = call.getString("visitId");
@@ -26,6 +45,10 @@ public class UJADIAlertsPlugin extends Plugin {
             String action = intent.getStringExtra("ujadi_alert_action");
             if (visitId != null) result.put("visitId", visitId);
             if (action != null) result.put("action", action);
+            intent.removeExtra("ujadi_visit_id");
+            intent.removeExtra("visit_id");
+            intent.removeExtra("ujadi_alert_action");
+            intent.removeExtra("alert_action");
         }
         call.resolve(result);
     }
