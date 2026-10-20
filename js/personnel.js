@@ -61,7 +61,7 @@ async function load(){
   .select("id,status,visit_id,created_at,visits(id,visitor_name,visitor_organization,visitor_photo_path,note,created_at,response_status,presence_status,urgency,waiting_until,responding_member_id,response_message,response_at)")
   .eq("member_id",ctx.session.user.id)
   .gte("created_at",day.start).lt("created_at",day.end)
-  .order("created_at",{ascending:false}).limit(200);
+  .order("created_at",{ascending:false}).limit(1000);
  if(error)throw error;
  allTodayRows=(data||[]).filter(r=>r.visits).sort((a,b)=>new Date(b.visits.created_at)-new Date(a.visits.created_at));
  $("#pending-count").textContent=allTodayRows.filter(r=>["pending","viewed"].includes(r.visits.response_status)&&["pending","notified","viewed","claimed"].includes(r.status)).length;
