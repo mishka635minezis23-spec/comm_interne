@@ -1,8 +1,78 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2457d6"><title>Réception · Communication interne</title><link rel="stylesheet" href="css/style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="js/supabase.js"></script><script src="js/common.js"></script><script src="js/mitappinventor-bridge.js"></script><script defer src="js/reception.js"></script></head>
-<body><main class="shell"><header class="topbar"><a class="brand" href="reception.html"><span class="brand-mark">CI</span><span>Communication interne</span></a><div class="top-actions"><span id="connection-status" class="connection">En ligne</span><span id="user-name" class="user-pill">Réception</span><button id="sign-out" class="btn secondary small-btn">Quitter</button></div></header>
-<nav class="nav"><a href="reception.html" data-nav="reception">Réception</a><a href="historique.html" data-nav="historique">Historique</a><a href="admin.html" data-nav="admin">Administration</a></nav>
-<section class="page-head"><div><div class="eyebrow">Accueil des visiteurs</div><h1>Réception</h1><p>Crée une demande et suis les réponses.</p></div><span class="badge blue">Connecté : <span id="user-role">Réception</span></span></section>
-<section class="grid three" style="margin-bottom:16px"><article class="card stat"><div><div class="stat-number" id="stat-active">—</div><div class="stat-label">Visites actives</div></div><span class="stat-icon">◷</span></article><article class="card stat"><div><div class="stat-number" id="stat-pending">—</div><div class="stat-label">En attente de réponse</div></div><span class="stat-icon">⌁</span></article><article class="card stat"><div><div class="stat-number">30 s</div><div class="stat-label">Délai cible</div></div><span class="stat-icon">⚡</span></article></section>
-<section class="reception-layout"><article class="card"><h2>Nouvelle visite</h2><form id="visit-form" class="stack"><div class="field"><label for="visitor-name">Nom du visiteur *</label><input name="visitor_name" id="visitor-name" required maxlength="160" placeholder="Nom et prénom"></div><div class="field"><label for="visitor-organization">Organisation</label><input name="visitor_organization" id="visitor-organization" maxlength="160" placeholder="Entreprise, institution…"></div><div class="field"><label for="visit-reason">Motif</label><select name="reason_id" id="visit-reason"><option value="">Choisir un motif…</option></select></div><div class="field"><label for="visitor-photo">Photo facultative</label><input id="visitor-photo" type="file" accept="image/*" capture="environment"><span class="hint">Le stockage privé des photos sera activé dans une étape dédiée.</span></div><div class="field"><label for="visit-note">Commentaire</label><textarea name="note" id="visit-note" maxlength="1000" placeholder="Précision utile au collaborateur…"></textarea></div><div class="field"><label for="urgency">Priorité</label><select name="urgency" id="urgency"><option value="normal">Normale</option><option value="urgent">Urgente</option></select></div><div class="field"><label>Destinataires *</label><span class="hint">Sélectionne un ou plusieurs collaborateurs.</span><div id="target-members" class="checkbox-list"><p class="muted small">Chargement…</p></div></div><button type="submit" class="btn">Envoyer la demande →</button><p class="hint">La visite sera enregistrée dans Supabase. Les notifications push restent à configurer.</p></form></article>
-<article class="card"><div class="toolbar"><div><h2 style="margin:0">Visites récentes</h2><p class="muted small">État des réponses et de la présence.</p></div><button class="btn secondary small-btn" onclick="location.reload()">Actualiser ↻</button></div><div id="active-visits" class="stack"><div class="empty">Chargement des visites…</div></div></article></section><footer class="footer-note">Communication interne · Les données visibles dépendent de ton rôle.</footer></main><nav class="mobile-bottom"><a href="reception.html" data-bottom-nav="reception"><span>⌂</span>Réception</a><a href="historique.html" data-bottom-nav="historique"><span>◷</span>Historique</a><a href="admin.html" data-bottom-nav="admin"><span>⚙</span>Admin</a></nav></body></html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0B4FD8">
+  <title>Accueil & réception · UJADI ONGD</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script><script src="js/supabase.js"></script><script src="js/common.js"></script><script src="js/mitappinventor-bridge.js"></script>
+  <script defer src="js/chat.js"></script><script defer src="js/reception.js"></script>
+</head>
+<body class="app-page reception-page">
+<main class="shell">
+  <header class="topbar">
+    <a class="brand" href="reception.html" aria-label="UJADI ONGD — Accueil réception">
+      <span class="brand-mark">UJ</span><span class="brand-copy"><strong>UJADI <span>ONGD</span></strong><small>Accueil & communication interne</small></span>
+    </a>
+    <div class="top-actions"><span id="connection-status" class="connection">Connexion...</span><span id="user-name" class="user-pill">Réception</span><button id="sign-out" class="btn secondary small-btn">Quitter</button></div>
+  </header>
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="reception.html" data-nav="reception">⌂ Accueil</a><a href="historique.html" data-nav="historique">◷ Historique</a><a href="admin.html" data-nav="admin">⚙ Administration</a>
+  </nav>
+  <section class="page-head">
+    <div><div class="eyebrow">UJADI ONGD · Goma, RDC</div><h1>Bienvenue à la réception</h1><p>Un accueil chaleureux, une demande bien transmise et un suivi clair pour chaque visiteur.</p></div>
+    <span class="badge blue">Espace <span id="user-role">Réception</span></span>
+  </section>
+  <section class="reception-hero">
+    <div class="reception-hero-copy"><div class="eyebrow">L'accueil commence ici</div><h2>Comment pouvons-nous vous orienter aujourd’hui&nbsp;?</h2><p>Enregistre une demande d’audience et préviens la bonne personne en quelques secondes. L’état de la réponse reste visible en temps réel.</p></div>
+    <button type="button" class="btn" data-open-visit>＋ Demander une audience</button>
+  </section>
+  <section class="grid three section-gap" aria-label="Résumé des visites">
+    <article class="card stat"><div><div class="stat-number" id="stat-active">—</div><div class="stat-label">Visites en cours de suivi</div></div><span class="stat-icon" aria-hidden="true">◷</span></article>
+    <article class="card stat"><div><div class="stat-number" id="stat-pending">—</div><div class="stat-label">Réponses attendues</div></div><span class="stat-icon" aria-hidden="true">⌁</span></article>
+    <article class="card stat"><div><div class="stat-number">Direct</div><div class="stat-label">Mise à jour en temps réel</div></div><span class="stat-icon" aria-hidden="true">↻</span></article>
+  </section>
+  <div class="home-section-title"><div><h2>Suivi des visites récentes</h2><p>Vérifie les réponses, ajuste la décision et échange avec le collaborateur.</p></div><a href="historique.html">Voir tout l’historique →</a></div>
+  <section class="card" aria-label="Visites récentes"><div id="active-visits" class="stack"><div class="empty">Chargement des visites…</div></div></section>
+  <footer class="footer-note">UJADI ONGD · Union des Jeunes Actifs pour le Développement Intégral · Accès réservé au personnel autorisé.</footer>
+</main>
+
+<div id="visit-dialog" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="visit-dialog-title" aria-hidden="true">
+  <section class="modal-panel wide">
+    <header class="modal-header"><div><div class="eyebrow">Nouvelle entrée</div><h2 id="visit-dialog-title">Demande d’audience</h2><p class="small muted">Les informations seront transmises au personnel sélectionné.</p></div><button class="modal-close" type="button" data-close-visit aria-label="Fermer">×</button></header>
+    <form id="visit-form" class="stack">
+      <div class="grid two">
+        <div class="field"><label for="visitor-name">Nom complet du visiteur *</label><input name="visitor_name" id="visitor-name" required maxlength="160" autocomplete="name" placeholder="Nom et prénom"></div>
+        <div class="field"><label for="visitor-organization">Organisation (facultatif)</label><input name="visitor_organization" id="visitor-organization" maxlength="160" placeholder="Entreprise, institution…"></div>
+      </div>
+      <div class="grid two">
+        <div class="field"><label for="visit-reason">Motif de la visite</label><select name="reason_id" id="visit-reason"><option value="">Choisir un motif…</option></select></div>
+        <div class="field"><label for="urgency">Priorité</label><select name="urgency" id="urgency"><option value="normal">Normale</option><option value="urgent">Urgente</option></select></div>
+      </div>
+      <div class="field"><label for="target-member">Collaborateur à contacter *</label><select id="target-member" name="primary_member_id" required><option value="">Chargement du personnel…</option></select><span class="hint">Choisis d’abord la personne principale. Tu peux ajouter d’autres destinataires si nécessaire.</span></div>
+      <label class="check-item"><input id="add-extra-targets" type="checkbox"><span><strong>Ajouter d’autres collaborateurs</strong><br><span class="small">Pour une réunion ou une demande adressée à plusieurs personnes.</span></span></label>
+      <div id="extra-target-members" class="checkbox-list hidden"></div>
+      <div class="field"><label for="visit-note">Commentaire à transmettre</label><textarea name="note" id="visit-note" maxlength="1000" placeholder="Ajoute une précision utile, sans informations confidentielles non nécessaires."></textarea></div>
+      <div class="modal-actions"><button class="btn secondary" type="button" data-close-visit>Annuler</button><button type="submit" class="btn">Envoyer la demande →</button></div>
+    </form>
+  </section>
+</div>
+
+<div id="response-announcement" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="response-announcement-title" aria-hidden="true">
+  <section class="modal-panel">
+    <div class="announcement-icon" aria-hidden="true">✉</div><div class="eyebrow">Nouvelle réponse</div><h2 id="response-announcement-title">Le collaborateur a répondu</h2>
+    <p id="response-announcement-summary">La réponse à une demande d’audience vient d’arriver.</p>
+    <div id="response-announcement-state" class="notice">État de la demande</div><div id="response-announcement-message" class="response-message hidden"></div>
+    <div class="modal-actions"><button type="button" class="btn" id="acknowledge-response">J’ai compris, continuer</button></div>
+  </section>
+</div>
+
+<nav class="mobile-bottom" aria-label="Raccourcis">
+  <a href="reception.html" data-bottom-nav="reception" class="active"><span>⌂</span>Accueil</a>
+  <a href="historique.html" data-bottom-nav="historique"><span>◷</span>Historique</a>
+  <a href="admin.html" data-bottom-nav="admin"><span>⚙</span>Équipe</a>
+</nav>
+</body></html>
