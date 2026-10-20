@@ -3,7 +3,7 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.quer
 window.escapeHTML=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 window.toast=(message,type="")=>{let region=$(".toast-region");if(!region){region=document.createElement("div");region.className="toast-region";document.body.appendChild(region);}const item=document.createElement("div");item.className="toast "+type;item.textContent=message;region.appendChild(item);setTimeout(()=>item.remove(),4000);};
 window.formatDate=(value,withTime=true)=>{if(!value)return "—";const d=new Date(value);if(Number.isNaN(d.getTime()))return "—";return new Intl.DateTimeFormat("fr-FR",withTime?{dateStyle:"short",timeStyle:"short"}:{dateStyle:"medium"}).format(d);};
-window.responseLabel=v=>({pending:"En attente",viewed:"Vue",authorized:"Autorisée",waiting:"En attente",unavailable:"Indisponible",no_response:"Sans réponse",cancelled:"Annulée"}[v]||v||"—");
+window.responseLabel=v=>({pending:"En attente",viewed:"Vue",authorized:"Autorisée",waiting:"Patienter",unavailable:"Indisponible",no_response:"Sans réponse",cancelled:"Annulée"}[v]||v||"—");
 window.presenceLabel=v=>({not_arrived:"Pas encore arrivé",in_visit:"En visite",completed:"Terminée"}[v]||v||"—");
 window.availabilityLabel=v=>({available:"Disponible",in_meeting:"En réunion",do_not_disturb:"Ne pas déranger",absent:"Absent"}[v]||v||"—");
 window.badgeClass=v=>({authorized:"green",completed:"green",available:"green",waiting:"orange",in_meeting:"orange",pending:"blue",viewed:"blue",unavailable:"red",no_response:"red",cancelled:"red",do_not_dnd:"orange",do_not_disturb:"orange",absent:"red",in_visit:"green"}[v]||"");
