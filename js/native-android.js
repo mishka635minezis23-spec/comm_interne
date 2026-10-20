@@ -124,6 +124,9 @@ async function addListeners() {
     const alertAction = data.alert_action || "open";
     void handleOpenedVisit(visitId, alertAction);
   });
+  await NativeAlerts.addListener("alertAction", action => {
+    if (action?.visitId) void handleOpenedVisit(action.visitId, action.action || "open");
+  });
 }
 
 async function deactivate() {
