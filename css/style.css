@@ -184,3 +184,5 @@ tbody tr:last-child td{border-bottom:0}
 .login-info .brand{display:inline-flex;align-self:flex-start;padding:6px 9px;background:var(--bg-card);border-radius:10px}
 .login-info .brand-logo-image{width:min(172px,45vw);max-height:50px}
 @media(max-width:800px){.brand-logo-image{width:min(146px,41vw);max-height:46px}.login-info .brand-logo-image{width:min(166px,55vw);max-height:48px}}
+
+.login-location{color:var(--primary-subtle);margin-top:36px}
