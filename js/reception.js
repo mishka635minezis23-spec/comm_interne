@@ -103,7 +103,7 @@ function clearVisitorPhoto(){
  $("#visitor-photo-preview")?.classList.add("hidden");
 }
 async function loadVisits(notifyChanges=false){
- const {data,error}=await db.from("visits").select("id,visitor_name,visitor_organization,visitor_photo_path,note,created_at,response_status,presence_status,urgency,responding_member_id,response_message,response_at,waiting_until").order("created_at",{ascending:false}).limit(250);
+ const {data,error}=await db.from("visits").select("id,visitor_name,visitor_organization,visitor_photo_path,note,created_at,response_status,presence_status,urgency,responding_member_id,response_message,response_at,waiting_until").order("created_at",{ascending:false}).limit(1000);
  if(error)throw error;const rows=data||[];
  if(notifyChanges&&!firstVisitLoad){
   rows.forEach(v=>{
