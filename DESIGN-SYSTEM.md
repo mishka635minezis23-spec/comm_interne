@@ -6,8 +6,8 @@ Référence visuelle commune pour l’application « Accueil & communication int
 
 - Marque affichée : **UJADI ONGD** — Union des Jeunes Actifs pour le Développement Intégral.
 - Police : `Century Gothic`, puis `AppleGothic`, `URW Gothic`, `Arial`, sans-serif.
-- Couleur d’accent : bleu royal `#0B4FD8`, avec bleu sombre `#0A3FB0` et bleu clair `#4DB8F5`.
-- Couleur de structure : bleu nuit `#0F172A`.
+- Couleur d’accent : vert profond `#174A35`, avec vert sombre `#103927` et vert clair `#66A984`.
+- Couleur de structure : bleu nuit `#0F172A`. Le bleu Easy-O d’origine est rethémé aux verts UJADI.
 - Les badges de statut utilisent vert, orange et rouge ; ils ne deviennent pas des couleurs d’accent générales.
 
 ## Tokens CSS
@@ -19,8 +19,8 @@ Les tokens sont déclarés dans `css/style.css`. Modifie les valeurs ici, plutô
 | Fond principal | `--bg-page` | `#F5F6F8` |
 | Cartes | `--bg-card` | `#FFFFFF` |
 | Champs | `--bg-input` | `#F3F4F7` |
-| Accent | `--primary` | `#0B4FD8` |
-| Accent sombre | `--primary-dark` | `#0A3FB0` |
+| Accent UJADI | `--primary` | `#174A35` |
+| Accent sombre | `--primary-dark` | `#103927` |
 | Titres | `--text-title` | `#0F172A` |
 | Texte courant | `--text-body` | `#334155` |
 | Texte secondaire | `--text-muted` | `#7C8799` |
