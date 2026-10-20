@@ -31,8 +31,8 @@ const appGradlePath = path.join(appDir, "build.gradle");
 let appGradle = readFileSync(appGradlePath, "utf8");
 if (!appGradle.includes("com.google.firebase:firebase-messaging")) {
   appGradle = appGradle.replace(
-    /dependencies\\s*\\{/,
-    match => match + '\\n    implementation "com.google.firebase:firebase-messaging:25.0.1"'
+    /dependencies\s*\{/,
+    match => match + '\n    implementation "com.google.firebase:firebase-messaging:25.0.1"'
   );
   writeFileSync(appGradlePath, appGradle, "utf8");
 }
