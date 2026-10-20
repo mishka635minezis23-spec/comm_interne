@@ -1,0 +1,9 @@
+(function(){"use strict";const CHANNEL="comm-interne";let lastId=null,lastWritten=null;
+const hasAI=()=>!!(window.AppInventor&&typeof AppInventor.getWebViewString==="function"&&typeof AppInventor.setWebViewString==="function");
+function parse(raw){try{const x=JSON.parse(raw);return x&&x.channel===CHANNEL?x:null;}catch(_){return null;}}
+function dispatch(msg){if(!msg||msg.direction!=="to-web")return;const id=msg.id||JSON.stringify(msg);if(id===lastId)return;lastId=id;const payload=msg.payload&&typeof msg.payload==="object"?msg.payload:{};window.dispatchEvent(new CustomEvent("mitai:"+(msg.action||"message"),{detail:payload}));if(msg.action==="navigate"&&payload.page&&/^[a-z0-9_-]+\.html$/i.test(payload.page))location.href=payload.page;else if(msg.action==="refresh")location.reload();else if(msg.action==="toast"&&window.toast)toast(String(payload.message||""),payload.type||"");}
+function send(action,payload={}){if(!hasAI())return false;const msg={channel:CHANNEL,direction:"to-native",id:Date.now()+"-"+Math.random().toString(16).slice(2),action:String(action),payload:payload&&typeof payload==="object"?payload:{value:payload}};lastWritten=JSON.stringify(msg);try{AppInventor.setWebViewString(lastWritten);return true;}catch(_){return false;}}
+function poll(){if(!hasAI())return;try{const raw=AppInventor.getWebViewString();if(!raw||raw===lastWritten)return;dispatch(parse(raw));}catch(_){}}
+window.MitAppInventorBridge={isAvailable:hasAI,send,requestCamera:purpose=>send("camera.request",{purpose:purpose||"visitor-photo"}),requestNotificationPermission:()=>send("notifications.permission.request",{}),registerPushToken:(token,platform)=>send("notifications.token",{token,platform:platform||"android"})};
+if(hasAI()){dispatch(parse(AppInventor.getWebViewString()));setInterval(poll,500);setTimeout(()=>send("page.ready",{page:location.pathname.split("/").pop()||"index.html"}),80);}
+})();
