@@ -54,17 +54,26 @@ Toutes les pages sont directement à la racine du dépôt pour assurer une navig
 
 ## Supabase
 
-L’application pointe vers le projet Supabase configuré dans `config.js`. La clé publishable est une clé client publique ; ne jamais exposer une clé `service_role` ou une clé secrète.
+L’application pointe vers le projet `ujadi_service_comm` configuré dans `config.js`. La clé publishable est une clé client publique ; ne jamais exposer une clé `service_role` ou une clé secrète.
 
-Les comptes doivent exister dans Supabase Auth. Le déclencheur crée automatiquement leur profil avec le rôle `member`. Pour initialiser le premier administrateur, exécute dans le SQL Editor en remplaçant l’UUID :
+### Comptes initiaux
+
+Crée les comptes en envoyant des invitations par e-mail depuis le Dashboard Supabase : [Auth → Users](https://supabase.com/dashboard/project/vdbastunbdqkpuzcftpz/auth/users).
+
+- `reception@ujadiongd.org` — le déclencheur de base crée automatiquement le profil avec le rôle `reception`.
+- `sec@ujadiongd.org` — le déclencheur crée automatiquement le profil `Secrétariat` avec le rôle `secretary`.
+
+Les deux adresses ont été vérifiées dans Auth et ne correspondent actuellement à aucun compte. Une fois les invitations créées dans Supabase Auth, les profils et rôles seront créés automatiquement. Les destinataires définiront eux-mêmes leur mot de passe via le flux d’invitation. Le connecteur utilisé pour cette session ne fournit pas d’opération d’invitation Auth, donc ces deux invitations doivent être envoyées depuis le Dashboard.
+
+Le rôle `secretary` permet de gérer les visites, l’historique, les étages et les motifs. Seul le rôle `admin` peut modifier les rôles et désactiver des comptes.
+
+Pour initialiser un administrateur, crée d’abord son compte dans Supabase Auth puis exécute dans le SQL Editor en remplaçant l’UUID :
 
 ```sql
 update public.staff_members
 set role = 'admin'
 where id = 'UUID_DU_COMPTE';
 ```
-
-Le profil administrateur doit être créé par l’authentification avant l’attribution du rôle. Pour des tests, utilise des comptes séparés pour l’administration, la réception et le personnel.
 
 ## MIT App Inventor WebViewer
 
