@@ -172,7 +172,7 @@ form.addEventListener("submit",async e=>{
    try{
     const blob=await compressVisitorPhoto(capturedVisitorPhoto);
     const photoPath=savedVisitId+"/visitor.jpg";
-    const {error:uploadError}=await db.storage.from("visitor-photos").upload(photoPath,blob,{contentType:"image/jpeg",cacheControl:"3600",upsert:true});
+    const {error:uploadError}=await db.storage.from("visitor-photos").upload(photoPath,blob,{contentType:"image/jpeg",cacheControl:"3600",upsert:false});
     if(uploadError)throw uploadError;
     const {error:pathError}=await db.rpc("set_visit_photo_path",{p_visit_id:savedVisitId,p_photo_path:photoPath});
     if(pathError){await db.storage.from("visitor-photos").remove([photoPath]);throw pathError;}
