@@ -55,5 +55,5 @@ Les tokens sont déclarés dans `css/style.css`. Modifie les valeurs ici, plutô
 2. Les noms de fichiers HTML restent à la racine pour la navigation dans MIT App Inventor WebViewer.
 3. Supabase Auth conserve sa session sur l’appareil via `persistSession`, `autoRefreshToken` et `localStorage`. Une déconnexion explicite ou l’effacement des données du navigateur supprime cette persistance.
 4. Les messages de conversation sont rattachés à une demande de visite et protégés par RLS. Seuls la réception, le secrétariat, l’administration et les collaborateurs autorisés sur cette visite peuvent les consulter.
-5. L’interface utilise actuellement un monogramme typographique **UJ** et le nom UJADI ONGD. Pour afficher l’emblème graphique officiel, ajouter le fichier logo validé par l’organisation dans le dépôt et remplacer le monogramme, sans changer les tokens.
+5. Le fichier `assets/logo-ujadi.png` reprend le logo UJADI visible dans la maquette institutionnelle enregistrée dans la bibliothèque du projet. Pour une netteté optimale sur les écrans haute densité, remplacer ultérieurement ce recadrage par le fichier source officiel PNG/SVG, sans changer les tokens.
 
