@@ -35,6 +35,6 @@
       <p class="footer-note">Les informations des visiteurs sont réservées au personnel autorisé.</p>
     </section>
   </main>
-  <script>if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+  <script>if('serviceWorker' in navigator && location.protocol.startsWith('http') && !['localhost','127.0.0.1'].includes(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>
