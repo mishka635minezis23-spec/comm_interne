@@ -16,9 +16,9 @@ Les tokens sont déclarés dans `css/style.css`. Modifie les valeurs ici, plutô
 
 | Usage | Token | Valeur |
 |---|---|---|
-| Fond principal | `--bg-page` | `#F5F6F8` |
-| Cartes | `--bg-card` | `#FFFFFF` |
-| Champs | `--bg-input` | `#F3F4F7` |
+| Fond principal | `--bg-page` | `#F0F4EF` |
+| Cartes | `--bg-card` | `#FCFDF9` |
+| Champs | `--bg-input` | `#EEF3EC` |
 | Accent UJADI | `--primary` | `#174A35` |
 | Accent sombre | `--primary-dark` | `#103927` |
 | Titres | `--text-title` | `#0F172A` |
@@ -57,3 +57,13 @@ Les tokens sont déclarés dans `css/style.css`. Modifie les valeurs ici, plutô
 4. Les messages de conversation sont rattachés à une demande de visite et protégés par RLS. Seuls la réception, le secrétariat, l’administration et les collaborateurs autorisés sur cette visite peuvent les consulter.
 5. Le fichier `assets/logo-ujadi.png` reprend le logo UJADI visible dans la maquette institutionnelle enregistrée dans la bibliothèque du projet. Pour une netteté optimale sur les écrans haute densité, remplacer ultérieurement ce recadrage par le fichier source officiel PNG/SVG, sans changer les tokens.
 
+
+## Surfaces réchauffées et fonctions d’interface
+
+- Le fond général utilise un vert-gris très pâle (`--bg-app: #E8EFE8`) ; la zone de travail utilise `--bg-page: #F0F4EF`.
+- Les cartes sont légèrement cassées (`--bg-card: #FCFDF9`) et les panneaux de contenu utilisent `--surface-soft: #F7FAF5` ; l’écran n’est donc plus une succession de surfaces blanc pur.
+- Le panneau d’accueil de la réception utilise `--surface-tint: #E5EFE5`.
+- Le point rouge des conversations non lues est piloté par `--chat-red` et `--chat-red-halo`.
+- La pagination commune affiche cinq visites par page. L’espace personnel filtre les demandes par journée locale et repart sur la journée courante.
+- Les photos de visiteurs sont capturées depuis l’appareil photo, compressées en JPEG et envoyées vers le bucket privé `visitor-photos`. Les images sont consultées avec des URL signées selon les règles d’accès à la visite.
+- Dans l’administration, seuls les administrateurs affectent les collaborateurs aux étages ; l’activation, la désactivation et le renommage des étages restent dans la gestion des étages.
