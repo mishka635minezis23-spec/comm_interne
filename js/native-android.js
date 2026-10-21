@@ -22,9 +22,7 @@ async function stopAlert(visitId) {
 
 async function dispatch(event, visitId) {
   if (!visitId || !window.db) return;
-  const { error } = await db.functions.invoke("send-visit-alert", {
-    body: { event, visit_id: visitId }
-  });
+  const { error } = await window.invokeVisitAlert({ event, visit_id: visitId });
   if (error) console.warn("Notification de suivi non transmise :", error.message);
 }
 
