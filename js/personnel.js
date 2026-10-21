@@ -89,7 +89,7 @@ $("#confirm-personnel-response").addEventListener("click",async()=>{
  try{
   const {error}=await db.rpc("respond_to_visit",{p_visit_id:action.id,p_response:action.response,p_wait_minutes:minutes,p_message:message});
   if(error)throw error;
-  const {error:pushStopError}=await db.functions.invoke("send-visit-alert",{body:{event:"visit_resolved",visit_id:action.id}});
+  const {error:pushStopError}=await window.invokeVisitAlert({event:"visit_resolved",visit_id:action.id});
   if(pushStopError)console.warn("Arrêt distant de l’alerte non transmis :",pushStopError.message);
   hideResponseModal();toast("Réponse transmise à la réception.","success");await load();
  }catch(err){toast(err.message||"Réponse impossible.","error");}
