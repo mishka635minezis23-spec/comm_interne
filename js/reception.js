@@ -5,7 +5,7 @@ const pageSize=5;
 const form=$("#visit-form"),list=$("#active-visits"),visitModal=$("#visit-dialog"),noticeModal=$("#response-announcement");
 const responseOptions=[["authorized","Autoriser l’entrée"],["waiting","Faire patienter"],["unavailable","Indisponible"]];
 function setModal(modal,open){modal.classList.toggle("hidden",!open);modal.setAttribute("aria-hidden",open?"false":"true");}
-async function stopVisitAlerts(visitId){const {error}=await db.functions.invoke("send-visit-alert",{body:{event:"visit_resolved",visit_id:visitId}});if(error)console.warn("Arrêt distant de l’alerte non transmis :",error.message);}
+async function stopVisitAlerts(visitId){const {error}=await window.invokeVisitAlert({event:"visit_resolved",visit_id:visitId});if(error)console.warn("Arrêt distant de l’alerte non transmis :",error.message);}
 function renderMemberOptions(){
  const primary=$("#target-member"),selected=primary.value;
  primary.innerHTML='<option value="">Choisir un collaborateur…</option>'+members.map(m=>'<option value="'+escapeHTML(m.id)+'">'+escapeHTML(m.full_name)+' · '+escapeHTML(m.floor_name)+' · '+escapeHTML(availabilityLabel(m.availability))+'</option>').join("");
@@ -179,7 +179,7 @@ form.addEventListener("submit",async e=>{
     if(pathError){await db.storage.from("visitor-photos").remove([photoPath]);throw pathError;}
    }catch(photoError){toast("Demande enregistrée, mais la photo n’a pas pu être jointe : "+(photoError.message||"erreur photo"),"error");}
   }
-  const {error:pushError}=await db.functions.invoke("send-visit-alert",{body:{event:"visit_created",visit_id:savedVisitId}});
+  const {error:pushError}=await window.invokeVisitAlert({event:"visit_created",visit_id:savedVisitId});
   if(pushError){console.warn("Alerte Android non envoyée :",pushError.message);toast("Demande enregistrée, mais l’alerte Android n’a pas pu être envoyée.","warning");}else{toast("Demande d’audience enregistrée et transmise.","success");}
   form.reset();clearVisitorPhoto();$("#extra-target-members").classList.add("hidden");closeVisitForm();visitPage=1;await loadVisits();
  }catch(err){toast(err.message||"La demande n’a pas pu être créée.","error");}
