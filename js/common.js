@@ -11,6 +11,26 @@ window.badge=(v,label)=>'<span class="badge '+window.badgeClass(v)+'">'+window.e
 window.setButtonBusy=(b,busy,label="Chargement…")=>{if(!b)return;if(busy){b.dataset.oldText=b.innerHTML;b.disabled=true;b.textContent=label;}else{b.disabled=false;if(b.dataset.oldText){b.innerHTML=b.dataset.oldText;delete b.dataset.oldText;}}};
 window.getSessionProfile=async()=>{const {data:{session},error}=await db.auth.getSession();if(error)throw error;if(!session){location.replace("index.html");return null;}const {data:profile,error:pe}=await db.from("staff_members").select("id,full_name,email,role,floor_id,delegate_member_id,availability,availability_until,is_active").eq("id",session.user.id).maybeSingle();if(pe)throw pe;if(!profile||!profile.is_active){await db.auth.signOut();location.replace("index.html");return null;}return {session,profile};};
 window.requireRoles=async roles=>{const ctx=await getSessionProfile();if(!ctx)return null;if(!roles.includes(ctx.profile.role)){toast("Ton compte n’a pas accès à cette page.","error");location.replace(ctx.profile.role==="admin"?"admin.html":(["reception","secretary"].includes(ctx.profile.role)?"reception.html":"personnel.html"));return null;}const name=$("#user-name");if(name)name.textContent=ctx.profile.full_name;const role=$("#user-role");if(role)role.textContent=({admin:"Administrateur",reception:"Réception",secretary:"Secrétariat",member:"Personnel"}[ctx.profile.role]||ctx.profile.role);const out=$("#sign-out");if(out)out.addEventListener("click",async()=>{try{await window.UJADINativeNotifications?.deactivate?.();}catch(error){console.warn("Déconnexion mobile :",error);}await db.auth.signOut();location.replace("index.html");});return ctx;};
+window.invokeVisitAlert=async payload=>{
+ const refreshSession=async force=>{
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+  if(!data.session)throw new Error("Session expirée. Reconnecte-toi avant de transmettre l’alerte.");
+  const expiresAt=(data.session.expires_at||0)*1000;
+  if(force||expiresAt<=Date.now()+90000){
+   const {data:refreshed,error:refreshError}=await db.auth.refreshSession();
+   if(refreshError||!refreshed?.session)throw refreshError||new Error("Impossible de renouveler la session Supabase.");
+  }
+ };
+ await refreshSession(false);
+ let result=await db.functions.invoke("send-visit-alert",{body:payload});
+ const status=result.error?.context?.status;
+ if(result.error&&(status===401||/\\b401\\b|session invalide/i.test(result.error.message||""))){
+  await refreshSession(true);
+  result=await db.functions.invoke("send-visit-alert",{body:payload});
+ }
+ return result;
+};
 window.bindCommonNav=active=>{$$("[data-nav]").forEach(a=>a.classList.toggle("active",a.dataset.nav===active));$$("[data-bottom-nav]").forEach(a=>a.classList.toggle("active",a.dataset.bottomNav===active));};
 
 window.hydrateVisitPhotos=async root=>{
