@@ -1,5 +1,6 @@
 (function(){"use strict";
 let ctx=null,channel=null,pendingAction=null,currentDayKey="",allTodayRows=[],visitPage=1;
+const alertVisitId=new URLSearchParams(location.search).get("visit");let alertVisitRow=null;
 const pageSize=5,list=$("#my-visits"),responseModal=$("#personnel-response-dialog");
 const responseCopy={authorized:{title:"Autoriser l’entrée",help:"La réception sera avertie que le visiteur peut être reçu."},waiting:{title:"Demander au visiteur de patienter",help:"Choisis un délai indicatif. La réception recevra ton message."},unavailable:{title:"Signaler ton indisponibilité",help:"La réception sera avertie et pourra réorienter le visiteur."}};
 function localDay(){
@@ -11,6 +12,7 @@ function hideResponseModal(){responseModal.classList.add("hidden");responseModal
 function showResponseModal(button){
  const article=button.closest("[data-visit]");if(!article)return;
  pendingAction={id:button.dataset.id,response:button.dataset.response,visitor:article.dataset.visitor||"Visiteur"};
+ if(window.UJADINativeNotifications)void window.UJADINativeNotifications.acknowledge(pendingAction.id);
  const info=responseCopy[pendingAction.response];$("#personnel-response-title").textContent=info.title;$("#personnel-response-visitor").textContent="Visiteur : "+pendingAction.visitor;$("#personnel-response-help").textContent=info.help;
  $("#personnel-wait-field").classList.toggle("hidden",pendingAction.response!=="waiting");
  $("#personnel-message-field").classList.toggle("hidden",!["waiting","unavailable"].includes(pendingAction.response));
@@ -48,8 +50,10 @@ function renderPagination(){
 }
 function render(){
  const visible=allTodayRows.slice((visitPage-1)*pageSize,visitPage*pageSize);
+ if(alertVisitRow&&!visible.some(row=>row.visit_id===alertVisitRow.visit_id))visible.unshift(alertVisitRow);
  list.innerHTML=visible.length?visible.map(card).join(""):'<div class="empty"><strong>Aucune demande pour aujourd’hui</strong>Les demandes adressées à ton compte apparaîtront ici. La liste recommence automatiquement chaque jour.</div>';
  renderPagination();
+ if(alertVisitId){const target=$(".visit-card",list).find(item=>item.dataset.visit===alertVisitId);if(target){target.style.outline="3px solid #2E7657";target.style.scrollMarginTop="28px";setTimeout(()=>target.scrollIntoView({behavior:"smooth",block:"center"}),180);}}
  if(window.hydrateVisitPhotos)window.hydrateVisitPhotos(list);
  if(window.VisitChat)VisitChat.refreshUnreadBadges();
 }
@@ -64,6 +68,8 @@ async function load(){
   .order("created_at",{ascending:false}).limit(1000);
  if(error)throw error;
  allTodayRows=(data||[]).filter(r=>r.visits).sort((a,b)=>new Date(b.visits.created_at)-new Date(a.visits.created_at));
+ alertVisitRow=null;
+ if(alertVisitId){const foundIndex=allTodayRows.findIndex(row=>row.visit_id===alertVisitId);if(foundIndex>=0){visitPage=Math.floor(foundIndex/pageSize)+1;}else{const {data:targetRow,error:targetError}=await db.from("visit_recipients").select("id,status,visit_id,created_at,visits(id,visitor_name,visitor_organization,visitor_photo_path,note,created_at,response_status,presence_status,urgency,waiting_until,responding_member_id,response_message,response_at)").eq("member_id",ctx.session.user.id).eq("visit_id",alertVisitId).maybeSingle();if(targetError)console.warn("Demande ciblée non chargée :",targetError.message);else if(targetRow?.visits)alertVisitRow=targetRow;}}
  $("#pending-count").textContent=allTodayRows.filter(r=>["pending","viewed"].includes(r.visits.response_status)&&["pending","notified","viewed","claimed"].includes(r.status)).length;
  $("#today-count").textContent=String(allTodayRows.length);
  render();
@@ -83,6 +89,8 @@ $("#confirm-personnel-response").addEventListener("click",async()=>{
  try{
   const {error}=await db.rpc("respond_to_visit",{p_visit_id:action.id,p_response:action.response,p_wait_minutes:minutes,p_message:message});
   if(error)throw error;
+  const {error:pushStopError}=await db.functions.invoke("send-visit-alert",{body:{event:"visit_resolved",visit_id:action.id}});
+  if(pushStopError)console.warn("Arrêt distant de l’alerte non transmis :",pushStopError.message);
   hideResponseModal();toast("Réponse transmise à la réception.","success");await load();
  }catch(err){toast(err.message||"Réponse impossible.","error");}
  finally{setButtonBusy(btn,false);}
