@@ -131,7 +131,12 @@
 
       window.location.replace(destination);
     } catch (error) {
-      if (isInvalidRefreshTokenError(error)) {\n        await clearLocalSession();\n        showMessage("Une ancienne session n’est plus valide. Reconnecte-toi avec tes identifiants.", "warning");\n        return;\n      }\n      console.warn("[UJADI login] Vérification de session ignorée :", error);
+      if (isInvalidRefreshTokenError(error)) {
+        await clearLocalSession();
+        showMessage("Une ancienne session n’est plus valide. Reconnecte-toi avec tes identifiants.", "warning");
+        return;
+      }
+      console.warn("[UJADI login] Vérification de session ignorée :", error);
     }
   })();
 })();
