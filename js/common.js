@@ -9,7 +9,7 @@ window.availabilityLabel=v=>({available:"Disponible",in_meeting:"En réunion",do
 window.badgeClass=v=>({authorized:"green",completed:"green",available:"green",waiting:"orange",in_meeting:"orange",pending:"blue",viewed:"blue",unavailable:"red",no_response:"red",cancelled:"red",do_not_dnd:"orange",do_not_disturb:"orange",absent:"red",in_visit:"green"}[v]||"");
 window.badge=(v,label)=>'<span class="badge '+window.badgeClass(v)+'">'+window.escapeHTML(label||window.responseLabel(v))+'</span>';
 window.setButtonBusy=(b,busy,label="Chargement…")=>{if(!b)return;if(busy){b.dataset.oldText=b.innerHTML;b.disabled=true;b.textContent=label;}else{b.disabled=false;if(b.dataset.oldText){b.innerHTML=b.dataset.oldText;delete b.dataset.oldText;}}};
-window.getSessionProfile=async()=>{const {data:{session},error}=await db.auth.getSession();if(error)throw error;if(!session){location.replace("index.html");return null;}const {data:profile,error:pe}=await db.from("staff_members").select("id,full_name,email,role,floor_id,delegate_member_id,availability,availability_until,is_active").eq("id",session.user.id).maybeSingle();if(pe)throw pe;if(!profile||!profile.is_active){await db.auth.signOut({scope:"local"});location.replace("index.html");return null;}return {session,profile};};
+window.getSessionProfile=async()=>{const {data:{session},error}=await db.auth.getSession();if(error){if(window.isInvalidRefreshTokenError?.(error)){await window.recoverInvalidAuthSession?.();return null;}throw error;}if(!session){location.replace("index.html");return null;}const {data:profile,error:pe}=await db.from("staff_members").select("id,full_name,email,role,floor_id,delegate_member_id,availability,availability_until,is_active").eq("id",session.user.id).maybeSingle();if(pe)throw pe;if(!profile||!profile.is_active){await db.auth.signOut({scope:"local"});location.replace("index.html");return null;}return {session,profile};};
 window.requireRoles=async roles=>{const ctx=await getSessionProfile();if(!ctx)return null;if(!roles.includes(ctx.profile.role)){toast("Ton compte n’a pas accès à cette page.","error");location.replace(ctx.profile.role==="admin"?"admin.html":(["reception","secretary"].includes(ctx.profile.role)?"reception.html":"personnel.html"));return null;}const name=$("#user-name");if(name)name.textContent=ctx.profile.full_name;const role=$("#user-role");if(role)role.textContent=({admin:"Administrateur",reception:"Réception",secretary:"Secrétariat",member:"Personnel"}[ctx.profile.role]||ctx.profile.role);const out=$("#sign-out");if(out)out.addEventListener("click",async()=>{try{await window.UJADINativeNotifications?.deactivate?.();}catch(error){console.warn("Déconnexion mobile :",error);}await db.auth.signOut({scope:"local"});location.replace("index.html");});return ctx;};
 window.isInvalidRefreshTokenError=error=>{
  const message=String(error?.message||error?.msg||"");
@@ -35,7 +35,7 @@ window.invokeVisitAlert=async payload=>{
   }
   throw error;
  }
- if(!data?.session)throw new Error("Session expirée. Reconnecte-toi avant de transmettre l’alerte.");
+ if(!data?.session){await window.recoverInvalidAuthSession();throw new Error("Session expirée. Reconnecte-toi avant de transmettre l’alerte.");}
  let result=await db.functions.invoke("send-visit-alert",{body:payload});
  const status=result.error?.context?.status;
  if(result.error&&(status===401||/\\b401\\b|session invalide/i.test(result.error.message||""))){
