@@ -1,4 +1,5 @@
 (function(){ "use strict";
   if(!window.APP_CONFIG||!window.supabase||!window.supabase.createClient){console.error("Supabase/config.js manquant");return;}
-  if(window.db){return;}\n  window.db=window.supabase.createClient(window.APP_CONFIG.SUPABASE_URL,window.APP_CONFIG.SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}});
+  if(window.db){return;}
+  window.db=window.supabase.createClient(window.APP_CONFIG.SUPABASE_URL,window.APP_CONFIG.SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage}});
 })();
