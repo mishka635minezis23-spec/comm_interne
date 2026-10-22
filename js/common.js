@@ -38,7 +38,7 @@ window.invokeVisitAlert=async payload=>{
  if(!data?.session)throw new Error("Session expirée. Reconnecte-toi avant de transmettre l’alerte.");
  let result=await db.functions.invoke("send-visit-alert",{body:payload});
  const status=result.error?.context?.status;
- if(result.error&&(status===401||status===403||/\\b401\\b|session invalide/i.test(result.error.message||""))){
+ if(result.error&&(status===401||/\\b401\\b|session invalide/i.test(result.error.message||""))){
   const {data:refreshed,error:refreshError}=await db.auth.refreshSession();
   if(refreshError||!refreshed?.session){
    if(window.isInvalidRefreshTokenError(refreshError)){
