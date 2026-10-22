@@ -26,6 +26,24 @@
     notice.textContent = message;
   }
 
+  if (new URLSearchParams(window.location.search).get("session") === "expired") {
+    showMessage("Ta session a expiré. Reconnecte-toi pour continuer.", "warning");
+  }
+
+  function isInvalidRefreshTokenError(error) {
+    const message = String(error?.message || error?.msg || "");
+    const code = String(error?.code || "");
+    return code === "invalid_grant" || /invalid.{0,30}refresh token|refresh token.{0,40}(not found|invalid|already used|revoked)/i.test(message);
+  }
+
+  async function clearLocalSession() {
+    try {
+      await window.db?.auth?.signOut({ scope: "local" });
+    } catch (error) {
+      console.warn("[UJADI login] Nettoyage local de session :", error);
+    }
+  }
+
   function setBusy(busy) {
     if (!button) return;
     button.disabled = busy;
@@ -69,7 +87,7 @@
       if (profileError) throw profileError;
 
       if (!profile || !profile.is_active) {
-        await client.auth.signOut();
+        await client.auth.signOut({ scope: "local" });
         throw new Error("Aucun profil actif n'est associé à ce compte. Contacte l'administration.");
       }
 
@@ -113,6 +131,11 @@
 
       window.location.replace(destination);
     } catch (error) {
+      if (isInvalidRefreshTokenError(error)) {
+        await clearLocalSession();
+        showMessage("Une ancienne session n’est plus valide. Reconnecte-toi avec tes identifiants.", "warning");
+        return;
+      }
       console.warn("[UJADI login] Vérification de session ignorée :", error);
     }
   })();
